@@ -3,27 +3,27 @@
 	let monthArray = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", '11', "12"];
 	let yearsArray = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
 
-	let cardNum = '';
-	let currentMask = ["****", "****", "****", "****"];
-	let currentNumber = "";
+	let cardNum = '################';
+	let currentMask = ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"];
+	let currentNumber = [];
+	let numbersArray = []
 
-	let cardHolderName = "";
-	let expiresMonth = "";
-	let expiresYear = "";
+	let cardHolderName = "card holder";
+	let expiresMonth = "XX";
+	let expiresYear = "XXXX";
 
 	function cardNumberHandler(event) {
 		cardNum = event.target.value;
-		console.log(cardNum);
 	}
 
-	function renderNumInCardNumber () {
-
+	function splitCardNumberToArray(number) {
+		currentMask.forEach((it, index) => currentNumber[index] = it);
+		numbersArray = number.split("");
+		numbersArray.forEach((it, index) => currentNumber[index] = it);
 	}
 
-	function splitNumberGroup(group) {
-		let numbersInGroup = group.split();
-		console.log(numbersInGroup);
-		return numbersInGroup;
+	$: {
+		splitCardNumberToArray(cardNum);
 	}
 </script>
 
@@ -31,8 +31,14 @@
 	<section class="pay-form">
 		<div class="pay-form__card  card">
 			<div class="card-number__wrapper">
-				<span class="card__num-label">Card number</span>
-				<span class="card-number__el">{cardNum}</span>
+				{#each currentNumber as item, i}
+					{#if !((i+1) % 4 == 0) || ((i+1) % 16 == 0)}
+						<span class="card-number__el">{item}</span>
+					{:else}
+						<span class="card-number__el">{item}</span>
+						<div class="card-number__spacer"></div>
+					{/if}
+				{/each}
 			</div>
 			<div class="card__info">
 				<div class="card__holder">
@@ -53,12 +59,14 @@
 					type="text" 
 					class="input" 
 					on:input={cardNumberHandler}
-					maxlength="16">
+					maxlength="16"
+					pattern="[1-9]{1}[0-9]{3}\s[1-9]{1}[0-9]{3}\s[1-9]{1}[0-9]{3}\s[1-9]{1}[0-9]{3}">
 			</label>
 
 			<label>
 				<span class="input-title  form__card-name">Card name</span>
-				<input type="text" class="input" bind:value={cardHolderName}>
+				<input type="text" class="input" 
+					   on:input= {(e) => cardHolderName = e.target.value }>
 			</label>
 
 			<div class="wrapper">
@@ -113,8 +121,8 @@
 	}
 
 	.pay-form__card {
-		width: 300px;
-		height: 175px;
+		width: 330px;
+		height: 210px;
 		border-radius: 10px;
 		background-color: rgb(11, 25, 71);
 		position: absolute;
@@ -154,6 +162,7 @@
 		color: #444444;
 		padding: 8px 10px;
 		border-radius: 5px;
+		transition: all 0.3s ease-in-out;
 	}
 
 	.input:focus,
@@ -193,24 +202,32 @@
 
 	.card-number__wrapper {
 		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: flex-start;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
 
-		margin: 65px 20px 0 20px;
+		margin: 80px 20px 0 20px;
 		height: 50px;
 	}
 
 	.card-number__el {
+		display: block;
+		width: 5%;
+		flex-shrink: 0;
 		color: white;
-		font-size: 16px;
+		font-size: 20px;
 		line-height: 1;
-		transition: all 0.7s ease-in;
+		transition: all 0.7s ease-in-out;
+	}
+
+	.card-number__spacer {
+		display: flex;
+		flex-grow: 1;
 	}
 
 	.card__info {
 		display: flex;
-		margin-top: 10px;
+		margin-top: 15px;
 		padding: 0 20px;
 		justify-content: space-between;
 	}
@@ -220,15 +237,16 @@
 	}
 
 	.card__expires {
-		width: 20%;
+		width: 25%;
 	}
 
-	.card__num-label,
 	.card__holder-label,
 	.card__expires-label {
-		font-size: 12px;
-		color: grey;
+		font-size: 13px;
+		color: white;
 		display: block;
+		opacity: 0.7;
+		margin-bottom: 6px;
 	}
 
 	.card__holder-name,
