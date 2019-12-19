@@ -3,24 +3,51 @@
 	let monthArray = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", '11', "12"];
 	let yearsArray = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
 
-	let cardNum = '################';
-	let currentMask = ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"];
+	let cardNum = '#### #### #### ####';
+	let currentMask = ["#", "#", "#", "#", " ", "#", "#", "#", "#", " ", "#", "#", "#", "#", " ", "#", "#", "#", "#"];
 	let currentNumber = [];
 	let numbersArray = []
 
-	let cardHolderName = "card holder";
-	let expiresMonth = "XX";
-	let expiresYear = "XXXX";
+	let cardHolderName = "Firstname lastname";
+	let expiresMonth = "MM";
+	let expiresYear = "YYYY";
 
-	function cardNumberHandler(event) {
-		cardNum = event.target.value;
-	}
+	let re = /[0-9]/;
 
 	function splitCardNumberToArray(number) {
 		currentMask.forEach((it, index) => currentNumber[index] = it);
 		numbersArray = number.split("");
 		numbersArray.forEach((it, index) => currentNumber[index] = it);
-	}
+	};
+
+	function keyPressHendler(e) {
+		let keyValue = e.data;
+		let keyFunction = e.inputType;
+		let spaceNumber = 0;
+
+		if (keyFunction === "deleteContentBackward") {
+			cardNum = e.target.value;
+			let l = e.target.value.length;
+
+			if ((l == 5) || (l == 10) || (l == 15)) {
+					e.target.value = e.target.value.slice(0, -1);
+					cardNum = e.target.value;
+				};
+		} else {
+			if ((keyValue.search(re) != -1) === true) { 
+				cardNum = e.target.value;
+				let l = e.target.value.length;
+
+				if ((l == 4) || (l == 9) || (l == 14)) {
+					e.target.value = e.target.value + ' ';
+					cardNum = e.target.value;
+				};
+			} else {
+				e.target.value = e.target.value.slice(0, -1);
+				cardNum = e.target.value;
+			}
+		}
+	};
 
 	$: {
 		splitCardNumberToArray(cardNum);
@@ -32,10 +59,9 @@
 		<div class="pay-form__card  card">
 			<div class="card-number__wrapper">
 				{#each currentNumber as item, i}
-					{#if !((i+1) % 4 == 0) || ((i+1) % 16 == 0)}
+					{#if (item !== '')}
 						<span class="card-number__el">{item}</span>
 					{:else}
-						<span class="card-number__el">{item}</span>
 						<div class="card-number__spacer"></div>
 					{/if}
 				{/each}
@@ -47,7 +73,7 @@
 				</div>
 				<div class="card__expires">
 					<span class="card__expires-label">Expires</span>
-					<span class="card__expires-date">{expiresMonth}/{expiresYear}</span>
+					<span class="card__expires-date">{expiresMonth}/{expiresYear.toString().slice(2, 4)}</span>
 				</div>
 
 			</div>
@@ -57,9 +83,9 @@
 				<span class="input-title  form__card-number">Card number</span>
 				<input 
 					type="text" 
-					class="input" 
-					on:input={cardNumberHandler}
-					maxlength="16"
+					class="input"
+					on:input={keyPressHendler}
+					maxlength="19"
 					pattern="[1-9]{1}[0-9]{3}\s[1-9]{1}[0-9]{3}\s[1-9]{1}[0-9]{3}\s[1-9]{1}[0-9]{3}">
 			</label>
 
@@ -99,6 +125,8 @@
 </main>
 
 <style>
+	@import url("https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600,700|Source+Sans+Pro:400,600,700&display=swap");
+
 	* {
 		box-sizing: border-box;
 	}
@@ -108,6 +136,8 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		font-family: "Source Sans Pro", monospace;
+  		font-size: 16px;
 	}
 	.pay-form {
 		display: flex;
