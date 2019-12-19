@@ -12,7 +12,13 @@
 	let expiresMonth = "MM";
 	let expiresYear = "YYYY";
 
-	let re = /[0-9]/;
+	let re = /[0-9]/; //Used for validation cardNumber
+
+	const cardTypeClassMap = {
+		visa: 'build/assets/visa.png',
+		mastercard: 'build/assets/mastercard.png',
+		default: 'build/assets/visa.png'
+	}
 
 	function splitCardNumberToArray(number) {
 		currentMask.forEach((it, index) => currentNumber[index] = it);
@@ -23,7 +29,6 @@
 	function keyPressHendler(e) {
 		let keyValue = e.data;
 		let keyFunction = e.inputType;
-		let spaceNumber = 0;
 
 		if (keyFunction === "deleteContentBackward") {
 			cardNum = e.target.value;
@@ -49,14 +54,34 @@
 		}
 	};
 
-	$: {
-		splitCardNumberToArray(cardNum);
+	function getCardType(cardNumber) {
+		let visaRE = new RegExp("^4");
+		if (cardNumber.match(visaRE) != null) return "visa";
+
+		let mcRE = new RegExp("^5[1-5]");
+		if (cardNumber.match(mcRE) != null) {
+			return "mastercard";
+		} else {
+			return "default";
+		}
 	}
+
+	$: splitCardNumberToArray(cardNum);
+	$: cardType = getCardType(cardNum);
+	
 </script>
 
 <main>
 	<section class="pay-form">
 		<div class="pay-form__card  card">
+			<div class="card__logo-wrapper">
+				<div class="card__chip">
+					<img src="build/assets/chip.png" alt="">
+				</div>
+				<div class="card__cardType">
+					<img src="{cardTypeClassMap[cardType]}" alt="">
+				</div>
+			</div>
 			<div class="card-number__wrapper">
 				{#each currentNumber as item, i}
 					{#if (item !== '')}
@@ -143,7 +168,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 400px;
-		height: 500px;
+		height: 430px;
 		padding: 20px;
 		border: 1px solid #444444;
 		border-radius: 10px;
@@ -236,7 +261,7 @@
 		justify-content: space-between;
 		align-items: center;
 
-		margin: 80px 20px 0 20px;
+		margin: 0px 20px 0 20px;
 		height: 50px;
 	}
 
@@ -282,5 +307,33 @@
 	.card__holder-name,
 	.card__expires-date {
 		color: white;
+	}
+
+	.card__logo-wrapper {
+		display: flex;
+		position: relative;
+		height: 80px;
+	}
+
+	.card__logo-wrapper .card__chip {
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
+
+	.card__logo-wrapper .card__chip img {
+		display: block;
+		width: 50px;
+		height: auto;
+	}
+
+	.card__logo-wrapper .card__cardType {
+		position: absolute;
+		top: 20px;
+		right: 20px;
+	}
+
+	.card__logo-wrapper .card__cardType img {
+		width: 70px;
 	}
 </style>
